@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,10 +12,13 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function SignUp() {
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+    const navigate = useNavigate();
+  const [firstname, setFirstName] = useState("");
+  const [lastname, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,7 +27,7 @@ export default function SignUp() {
     e.preventDefault();
     setError("");
 
-    if (!firstName || !lastName || !email || !password) {
+    if (!firstname || !lastname || !email || !password) {
       setError("All fields are required");
       return;
     }
@@ -35,7 +39,22 @@ export default function SignUp() {
 
     // Here you would typically make an API call to create the user account
     // For this example, we'll just simulate a successful signup
-    console.log("Signup successful", { firstName, lastName, email });
+    console.log("Signup successful", { firstname, lastname, email });
+    
+   const response=await axios.post("http://localhost:9000/usersignup", {
+      email:email,
+      password:password,
+      firstname: firstname,
+      lastname: lastname
+    });
+    alert(response.data.message);
+    if (response.status === 200) {
+      localStorage.setItem("token", response.data.token);
+      navigate("/dashboard");
+    } else {
+      setError(response.data.message || "Failed to create user");
+    }
+
   };
 
   const handleGoogleSignUp = async () => {
@@ -64,7 +83,7 @@ export default function SignUp() {
                 <Input
                   id="firstName"
                   type="text"
-                  value={firstName}
+                  value={firstname}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
                 />
@@ -74,7 +93,7 @@ export default function SignUp() {
                 <Input
                   id="lastName"
                   type="text"
-                  value={lastName}
+                  value={lastname}
                   onChange={(e) => setLastName(e.target.value)}
                   required
                 />
